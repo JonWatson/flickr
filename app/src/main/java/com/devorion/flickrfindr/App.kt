@@ -5,7 +5,6 @@ import com.devorion.flickrfindr.di.AppComponent
 import com.devorion.flickrfindr.di.AppModule
 import com.devorion.flickrfindr.di.DaggerAppComponent
 
-
 class App : Application() {
     lateinit var appComponent: AppComponent
         private set

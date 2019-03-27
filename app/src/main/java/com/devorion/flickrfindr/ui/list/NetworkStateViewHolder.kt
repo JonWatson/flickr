@@ -28,7 +28,7 @@ class NetworkStateViewHolder(
     }
 
     fun bindTo(networkState: ServiceState?) {
-        progressBar.visibility = toVisibility(networkState?.status == Status.RUNNING)
+        progressBar.visibility = toVisibility(networkState?.status == Status.LOADING)
         retry.visibility = toVisibility(networkState?.status == Status.FAILED)
         errorMsg.visibility = toVisibility(networkState?.msg != null)
         errorMsg.text = networkState?.msg

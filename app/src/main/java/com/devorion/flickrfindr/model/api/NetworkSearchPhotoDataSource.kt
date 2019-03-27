@@ -14,8 +14,7 @@ import io.reactivex.schedulers.Schedulers
 // Fetches pages of Network.  Also stores actions and notifies state regarding retry/refresh
 class NetworkSearchPhotoDataSource(
     private val searchText: String,
-    private val flickrService: FlickrService,
-    private val compositeDisposable: CompositeDisposable
+    private val flickrService: FlickrService
 ) : PageKeyedDataSource<Int, Photo>() {
 
     private var retryCompletable: Completable? = null
@@ -28,7 +27,7 @@ class NetworkSearchPhotoDataSource(
     }
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Photo>) {
-        updateNetworkState(ServiceState(Status.RUNNING, true))
+        updateNetworkState(ServiceState(Status.LOADING, true))
         flickrService.search(searchText, params.requestedLoadSize, 1)
             .subscribeBy(
                 onSuccess = { response ->
@@ -48,8 +47,8 @@ class NetworkSearchPhotoDataSource(
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Photo>) {
-        updateNetworkState(ServiceState(Status.RUNNING, false))
-        compositeDisposable.add(flickrService.search(searchText, params.requestedLoadSize, params.key)
+        updateNetworkState(ServiceState(Status.LOADING, false))
+        flickrService.search(searchText, params.requestedLoadSize, params.key)
             .subscribeBy(
                 onSuccess = { response ->
                     updateNetworkState(ServiceState(Status.SUCCESS, false))
@@ -66,7 +65,7 @@ class NetworkSearchPhotoDataSource(
                     )
                     retryCompletable = Completable.fromAction { loadAfter(params, callback) }
                 }
-            ))
+            )
     }
 
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Photo>) {

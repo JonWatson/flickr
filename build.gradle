@@ -9,6 +9,7 @@ buildscript {
         rxjava_version = '2.2.0'
         paging_version = '2.1.0'
         room_version = '2.1.0-alpha06'
+        lifecycle_version = '2.1.0-alpha03'
     }
 
     repositories {

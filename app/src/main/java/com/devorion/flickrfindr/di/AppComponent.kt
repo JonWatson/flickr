@@ -6,7 +6,7 @@ import com.devorion.flickrfindr.ui.BookmarkActivity
 import dagger.Component
 import javax.inject.Singleton
 
-@Component(modules = [AppModule::class])
+@Component(modules = [AppModule::class, ViewModelModule::class])
 @Singleton
 interface AppComponent {
     fun inject(activity: MainActivity)

@@ -5,14 +5,12 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import com.devorion.flickrfindr.App
 import com.devorion.flickrfindr.R
-import com.devorion.flickrfindr.model.bookmarks.BookmarkPhotoDatabase
-import com.devorion.flickrfindr.model.bookmarks.BookmarkedViewModel
+import com.devorion.flickrfindr.model.BookmarkViewModel
+import com.devorion.flickrfindr.di.ViewModelFactory
 import com.devorion.flickrfindr.ui.list.GridSpacingItemDecoration
 import com.devorion.flickrfindr.ui.list.GridSpanSizeLookup
 import com.devorion.flickrfindr.ui.list.PhotosAdapter
@@ -27,11 +25,11 @@ class BookmarkActivity : AppCompatActivity() {
     @Inject
     lateinit var imageLoader: ImageLoader
     @Inject
-    lateinit var bookmarkPhotoDatabase: BookmarkPhotoDatabase
+    lateinit var viewModelFactory: ViewModelFactory
     @Inject
     lateinit var bookmarkManager: BookmarkManager
 
-    private lateinit var viewModel: BookmarkedViewModel
+    private lateinit var viewModel: BookmarkViewModel
     private val startActivityThrottler = StartActivityThrottler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,12 +86,7 @@ class BookmarkActivity : AppCompatActivity() {
     }
 
     private fun initializeViewModel(adapter: PhotosAdapter) {
-        viewModel = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return BookmarkedViewModel(bookmarkPhotoDatabase.bookmarkedPhotoDao()) as T
-            }
-        })[BookmarkedViewModel::class.java]
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[BookmarkViewModel::class.java]
 
         viewModel.bookmarkedPhotos.observe(this, Observer {
             adapter.submitList(it)

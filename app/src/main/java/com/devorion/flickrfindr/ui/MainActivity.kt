@@ -16,14 +16,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import com.devorion.flickrfindr.App
 import com.devorion.flickrfindr.R
-import com.devorion.flickrfindr.model.api.FlickrService
-import com.devorion.flickrfindr.model.api.NetworkViewModel
+import com.devorion.flickrfindr.model.NetworkViewModel
+import com.devorion.flickrfindr.di.ViewModelFactory
 import com.devorion.flickrfindr.model.state.Status
 import com.devorion.flickrfindr.ui.list.GridSpacingItemDecoration
 import com.devorion.flickrfindr.ui.list.GridSpanSizeLookup
@@ -38,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val LOG: Logger = Logger.getLogger(MainActivity::class.java)
 
     @Inject
-    lateinit var flickrService: FlickrService
+    lateinit var viewModelFactory: ViewModelFactory
     @Inject
     lateinit var bookmarkManager: BookmarkManager
     @Inject
@@ -72,11 +70,6 @@ class MainActivity : AppCompatActivity() {
         bookmarkManager.bookmarkServiceState.observe(this, Observer {
             BookmarkSnackbarDelegate().showBookmarkSnackbar(root, it)
         })
-
-        // TODO REMOVE ME
-        if (savedInstanceState == null) {
-            Handler().postDelayed({ doSearch("wholesome", true) }, 100)
-        }
     }
 
     private fun initializeAdapter(): PhotosAdapter {
@@ -113,12 +106,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeViewModel(adapter: PhotosAdapter) {
-        viewModel = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return NetworkViewModel(flickrService) as T
-            }
-        })[NetworkViewModel::class.java]
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[NetworkViewModel::class.java]
 
         viewModel.photos.observe(this, Observer {
             initial_loading.visibility = View.GONE
@@ -143,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 it.status == Status.SUCCESS -> {
                     hideNetworkStatusCard = true
                 }
-                it.isInitialLoad && it.status == Status.RUNNING -> {
+                it.isInitialLoad && it.status == Status.LOADING -> {
                     hideSwipeToRefresh = !swipe_refresh.isRefreshing
                     hideInitialLoading = swipe_refresh.isRefreshing
                     hideNetworkStatusCard = true
@@ -281,8 +269,8 @@ class MainActivity : AppCompatActivity() {
                     this,
                     SEARCH_AUTHORITY,
                     SEARCH_MODE
-                )
-                    .clearHistory()
+                ).clearHistory()
+
                 true
             }
             R.id.action_view_bookmarks -> {
@@ -306,19 +294,19 @@ class MainActivity : AppCompatActivity() {
                     SEARCH_MODE
                 ).saveRecentQuery(searchText, null)
 
-                doSearch(searchText, false)
+                doSearch(searchText)
             }
         }
     }
 
-    private fun doSearch(searchText: String, forceReload: Boolean) {
+    private fun doSearch(searchText: String) {
 //        if (connectionMonitor.networkLiveData.value == ConnectionMonitor.ConnectionStatus.DISCONNECTED) {
 //            showToast(resources.getString(R.string.offline_error_message))
 //            return
 //        }
 
         val trimmedQuery = searchText.trim()
-        if (viewModel.updateSearchText(trimmedQuery, forceReload)) {
+        if (viewModel.updateSearchText(trimmedQuery)) {
             // New Search text(and DataSource), clear scroll position or LayoutManager
             // will try to restore after the new data arrives
             photo_list.scrollToPosition(0)
