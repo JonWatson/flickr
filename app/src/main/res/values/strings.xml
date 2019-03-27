@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Flickr Findr</string>
+    <string name="activity_title_bookmarks">Bookmarks</string>
+
+    <string name="card_no_title">Untitled</string>
+    <string name="offline_bar_message">Offline - Click to View Bookmarks</string>
+    <string name="offline_error_message">Check network connection</string>
+
+    <string name="menu">Search Flickr…</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_clear_suggestions">Clear Suggestions</string>
+    <string name="menu_view_bookmarks">View Bookmarks</string>
+
+    <string name="content_description_image">Photo Image</string>
+    <string name="content_description_bookmark">Bookmark</string>
+    <string name="empty_view_no_results">No results found for %1$s</string>
+    <string name="empty_view_no_bookmarks">Bookmark some wholesome images\n so you can peruse them offline</string>
+
+    <string name="network_state_retry">Retry</string>
+
+    <string name="bookmark_added">Added Bookmark</string>
+    <string name="bookmark_removed">Removed Bookmark</string>
+    <string name="bookmark_add_fail">Error adding bookmark</string>
+    <string name="bookmark_remove_fail">Error removing bookmark</string>
+
+    <string name="showcase_message">Search for wholesome images</string>
+
+</resources>

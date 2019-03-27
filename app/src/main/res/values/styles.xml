@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="SpUsage">
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="AppTheme.Toolbar" parent="AppTheme">
+        <item name="android:textColorPrimary">@color/off_white</item>
+        <item name="android:textColorSecondary">@color/off_white</item>
+    </style>
+
+    <!-- MainActivity -->
+
+    <style name="offline_bar">
+        <item name="android:textColor">@color/off_white</item>
+        <item name="android:textSize">18dp</item>
+        <item name="android:background">@color/reddish</item>
+    </style>
+
+    <!-- Cards -->
+
+    <style name="photo_title">
+        <item name="android:textColor">@color/dark_gray</item>
+        <item name="android:textSize" tools:ignore="SpUsage">20dp</item>
+    </style>
+
+    <style name="bookmark_button">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:colorControlHighlight">@color/light_gray</item>
+    </style>
+
+    <style name="retry_button">
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:color">@color/dark_gray</item>
+        <item name="android:background">@color/light_gray</item>
+        <item name="android:padding">@dimen/network_item_button_padding</item>
+    </style>
+
+    <style name="network_error_msg">
+        <item name="android:textColor">@color/light_gray</item>
+        <item name="android:textSize">14dp</item>
+    </style>
+
+    <style name="empty_msg">
+        <item name="android:textColor">@color/light_gray</item>
+        <item name="android:textSize" tools:ignore="SpUsage">20dp</item>
+    </style>
+
+</resources>
