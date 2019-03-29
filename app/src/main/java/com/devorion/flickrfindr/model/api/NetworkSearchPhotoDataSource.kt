@@ -5,6 +5,7 @@ import androidx.paging.PageKeyedDataSource
 import com.devorion.flickrfindr.model.pojo.Photo
 import com.devorion.flickrfindr.model.state.ServiceState
 import com.devorion.flickrfindr.model.state.Status
+import com.devorion.flickrfindr.util.Logger
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -14,9 +15,11 @@ import io.reactivex.schedulers.Schedulers
 // Fetches pages of Network.  Also stores actions and notifies state regarding retry/refresh
 class NetworkSearchPhotoDataSource(
     private val searchText: String,
-    private val flickrService: FlickrService
+    private val flickrService: FlickrService,
+    private val compositeDisposable: CompositeDisposable
 ) : PageKeyedDataSource<Int, Photo>() {
 
+    private val LOG = Logger.getLogger(NetworkSearchPhotoDataSource::class.java)
     private var retryCompletable: Completable? = null
     val networkState: MutableLiveData<ServiceState> = MutableLiveData()
 
@@ -29,6 +32,9 @@ class NetworkSearchPhotoDataSource(
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Photo>) {
         updateNetworkState(ServiceState(Status.LOADING, true))
         flickrService.search(searchText, params.requestedLoadSize, 1)
+            .doOnSubscribe {
+                compositeDisposable.add(it)
+            }
             .subscribeBy(
                 onSuccess = { response ->
                     updateNetworkState(ServiceState(Status.SUCCESS, true))
@@ -49,6 +55,9 @@ class NetworkSearchPhotoDataSource(
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Photo>) {
         updateNetworkState(ServiceState(Status.LOADING, false))
         flickrService.search(searchText, params.requestedLoadSize, params.key)
+            .doOnSubscribe {
+                compositeDisposable.add(it)
+            }
             .subscribeBy(
                 onSuccess = { response ->
                     updateNetworkState(ServiceState(Status.SUCCESS, false))

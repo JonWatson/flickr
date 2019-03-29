@@ -17,12 +17,15 @@ class NetworkViewModel @Inject internal constructor(
 ) : ViewModel() {
 
     private val searchText = MutableLiveData<String>()
+    private val compositeDisposable = CompositeDisposable()
 
     private val networkLiveData =
         Transformations.map(searchText) {
+            compositeDisposable.clear() // Dispose of any ongoing requests before creating a new Data Source
             imagesForSearchText(
                 it,
-                PAGE_SIZE
+                PAGE_SIZE,
+                compositeDisposable
             )
         }
 
@@ -39,7 +42,8 @@ class NetworkViewModel @Inject internal constructor(
 
     private fun imagesForSearchText(
         searchText: String,
-        pageSize: Int
+        pageSize: Int,
+        compositeDisposable: CompositeDisposable
     ): DataSourceState<Photo> {
 
         val config = PagedList.Config.Builder()
@@ -51,7 +55,8 @@ class NetworkViewModel @Inject internal constructor(
 
         val sourceFactory = NetworkSearchPhotoDataSourceFactory(
             searchText,
-            flickrService
+            flickrService,
+            compositeDisposable
         )
 
         val pagedList = LivePagedListBuilder<Int, Photo>(sourceFactory, config).build()
@@ -74,6 +79,8 @@ class NetworkViewModel @Inject internal constructor(
 
     override fun onCleared() {
         super.onCleared()
+        // Dispose of any ongoing requests when the ViewModel is destroyed
+        compositeDisposable.clear()
     }
 
     companion object {
