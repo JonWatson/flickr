@@ -19,16 +19,16 @@ class NetworkViewModel @Inject internal constructor(
     private val searchText = MutableLiveData<String>()
     private val compositeDisposable = CompositeDisposable()
 
+    // Every search creates a new DataSource based on the new Search term. The following is triggered
+    // each time searchText(LiveData) is modified, clearing any ongoing requests and creating the new DataSource
     private val networkLiveData =
         Transformations.map(searchText) {
             compositeDisposable.clear() // Dispose of any ongoing requests before creating a new Data Source
-            imagesForSearchText(
-                it,
-                PAGE_SIZE,
-                compositeDisposable
-            )
+            imagesForSearchText(it, PAGE_SIZE, compositeDisposable)
         }
 
+    // Each time networkLiveData is updated from a new search(above),
+    // photos and networkState switch to pointing at the LiveData of the new DataSource
     val photos = Transformations.switchMap(networkLiveData) { it.pagedList }
     val networkState = Transformations.switchMap(networkLiveData) { it.networkState }
 

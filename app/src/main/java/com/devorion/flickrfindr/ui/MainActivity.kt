@@ -94,9 +94,7 @@ class MainActivity : AppCompatActivity() {
                 }
             addItemDecoration(
                 GridSpacingItemDecoration(
-                    resources.getDimensionPixelOffset(
-                        R.dimen.grid_padding
-                    )
+                    resources.getDimensionPixelOffset(R.dimen.half_grid_padding)
                 )
             )
 
@@ -131,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                 it.status == Status.SUCCESS -> {
                     hideNetworkStatusCard = true
                 }
-                it.isInitialLoad && it.status == Status.LOADING -> {
+                it.isInitialLoad && it.status == Status.RUNNING -> {
                     hideSwipeToRefresh = !swipe_refresh.isRefreshing
                     hideInitialLoading = swipe_refresh.isRefreshing
                     hideNetworkStatusCard = true

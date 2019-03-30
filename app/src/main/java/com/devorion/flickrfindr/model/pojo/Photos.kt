@@ -8,5 +8,5 @@ data class Photos @JsonCreator constructor(
     @param:JsonProperty("pages") val numPages: Int,
     @param:JsonProperty("perpage") val pageSize: Int,
     @param:JsonProperty("total") val total: Int,
-    @param:JsonProperty("photo") val photoList: ArrayList<Photo>
+    @param:JsonProperty("photo") val photoList: List<Photo>
 )

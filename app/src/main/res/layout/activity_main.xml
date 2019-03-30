@@ -19,6 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:paddingLeft="@dimen/half_grid_padding"
+            android:paddingRight="@dimen/half_grid_padding"
             android:paddingBottom="@dimen/offline_bar_height" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

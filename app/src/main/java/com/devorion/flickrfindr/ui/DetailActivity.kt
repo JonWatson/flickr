@@ -20,7 +20,12 @@ class DetailActivity : AppCompatActivity() {
         (application as App).appComponent.inject(this)
 
         with(intent.extras?.getSerializable(EXTRA_PHOTO) as Photo) {
-            imageLoader.loadPhotoIntoImage(this, image, resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
+            imageLoader.loadPhotoIntoImage(
+                this,
+                image,
+                resources.displayMetrics.widthPixels,
+                resources.displayMetrics.heightPixels
+            )
         }
     }
 

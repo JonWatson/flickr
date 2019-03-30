@@ -68,13 +68,10 @@ class BookmarkActivity : AppCompatActivity() {
                 }
             addItemDecoration(
                 GridSpacingItemDecoration(
-                    resources.getDimensionPixelOffset(
-                        R.dimen.grid_padding
-                    )
+                    resources.getDimensionPixelOffset(R.dimen.half_grid_padding)
                 )
             )
 
-            itemAnimator = null
             this.adapter = adapter
         }
 

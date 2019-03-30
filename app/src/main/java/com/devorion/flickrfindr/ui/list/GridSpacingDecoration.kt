@@ -18,62 +18,17 @@ package com.devorion.flickrfindr.ui.list
 
 import android.graphics.Rect
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 class GridSpacingItemDecoration(
-    private val spacing: Int
+    private val halfPadding: Int
 ) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        val (spanCount, spanIndex, spanSize) = extractGridData(
-            parent, view
-        )
-        // SpanCount = 1 works great in the app, it's just not currently used
-        if (spanCount == 1) {
-            if (parent.getChildAdapterPosition(view) == 0) {
-                outRect.top = spacing
-            }
-            outRect.bottom = spacing
-        } else {
-            outRect.left = (spacing * ((spanCount - spanIndex) / spanCount.toFloat())).toInt()
-            outRect.right = (spacing * ((spanIndex + spanSize) / spanCount.toFloat())).toInt()
-            outRect.bottom = spacing
-        }
+        outRect.left = halfPadding
+        outRect.right = halfPadding
+        outRect.bottom = halfPadding
+        outRect.top = halfPadding
     }
-
-    private fun extractGridData(parent: RecyclerView, view: View): GridItemData {
-        val layoutManager = parent.layoutManager
-        return when (layoutManager) {
-            is GridLayoutManager -> extractGridLayoutData(layoutManager, view)
-            is StaggeredGridLayoutManager -> extractStaggeredGridLayoutData(layoutManager, view)
-            else -> throw UnsupportedOperationException("Bad layout params")
-        }
-    }
-
-    private fun extractGridLayoutData(layoutManager: GridLayoutManager, view: View): GridItemData {
-        val lp = view.layoutParams as GridLayoutManager.LayoutParams
-        return GridItemData(
-            layoutManager.spanCount,
-            lp.spanIndex,
-            lp.spanSize
-        )
-    }
-
-    private fun extractStaggeredGridLayoutData(
-        layoutManager: StaggeredGridLayoutManager,
-        view: View
-    ): GridItemData {
-        val lp: StaggeredGridLayoutManager.LayoutParams =
-            view.layoutParams as StaggeredGridLayoutManager.LayoutParams
-        return GridItemData(
-            layoutManager.spanCount,
-            lp.spanIndex,
-            if (lp.isFullSpan) layoutManager.spanCount else 1
-        )
-    }
-
-    internal data class GridItemData(val spanCount: Int, val spanIndex: Int, val spanSize: Int)
 }
 
