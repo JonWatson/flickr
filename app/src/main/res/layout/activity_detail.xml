@@ -6,16 +6,10 @@
     android:background="@color/blackish"
     tools:context=".ui.DetailActivity">
 
-    <com.devorion.flickrfindr.ui.widget.AspectRatioFrameLayout
-        android:id="@+id/image_container"
+    <ImageView
+        android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
-
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/content_description_image" />
-    </com.devorion.flickrfindr.ui.widget.AspectRatioFrameLayout>
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/content_description_image" />
 </FrameLayout>
