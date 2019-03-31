@@ -5,7 +5,6 @@ import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import com.devorion.flickrfindr.di.DaggerTestComponent
 import com.devorion.flickrfindr.di.TestModule
-import com.devorion.flickrfindr.model.api.FlickrService
 import com.devorion.flickrfindr.model.pojo.Photo
 import com.devorion.flickrfindr.model.state.ServiceState
 import com.devorion.flickrfindr.model.state.Status
@@ -25,7 +24,7 @@ class NetworkViewModelTest {
     val rule = InstantTaskExecutorRule()
 
     @Inject
-    lateinit var flickrService: FlickrService
+    lateinit var flickrService: FakeFlickrService
 
     @Mock
     lateinit var stateObserver: Observer<ServiceState>
@@ -41,31 +40,90 @@ class NetworkViewModelTest {
     }
 
     @Test
-    fun searchTriggersLoadingState() {
+    fun searchTriggersInitialLoadState() {
+        flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
         networkViewModel.photos.observeForever(photoObserver)
+
         networkViewModel.updateSearchText("test")
-        verify(stateObserver).onChanged(ServiceState(Status.RUNNING, true, null))
+        verify(stateObserver).onChanged(ServiceState(Status.LOADING, true, null))
     }
 
     @Test
-    fun searchTriggersSuccessState() {
+    fun searchTriggersInitialSuccessState() {
+        flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
         networkViewModel.photos.observeForever(photoObserver)
+
         networkViewModel.updateSearchText("test")
         verify(stateObserver).onChanged(ServiceState(Status.SUCCESS, true, null))
     }
 
-
     @Test
-    fun searchLoadSecondPage() {
+    fun loadSecondPageTriggersLoadingState() {
+        flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
         networkViewModel.photos.observeForever(photoObserver)
+
         networkViewModel.updateSearchText("test")
-        networkViewModel.photos.value?.loadAround(23)
-        verify(stateObserver).onChanged(ServiceState(Status.RUNNING, false, null))
+        networkViewModel.photos.value?.loadAround(20)   // load another page
+        verify(stateObserver).onChanged(ServiceState(Status.LOADING, false, null))
+    }
+
+    @Test
+    fun loadSecondPageTriggersSuccessState() {
+        flickrService.addPhotos("test", 200)
+        val networkViewModel = NetworkViewModel(flickrService)
+        networkViewModel.networkState.observeForever(stateObserver)
+        networkViewModel.photos.observeForever(photoObserver)
+
+        networkViewModel.updateSearchText("test")
+        networkViewModel.photos.value?.loadAround(20)   // load another page
+        verify(stateObserver).onChanged(ServiceState(Status.SUCCESS, false, null))
+    }
+
+    @Test
+    fun emptySearchReturnsSuccess() {
+        flickrService.addPhotos("test", 200)
+        val networkViewModel = NetworkViewModel(flickrService)
+        networkViewModel.networkState.observeForever(stateObserver)
+        networkViewModel.photos.observeForever(photoObserver)
+
+        networkViewModel.updateSearchText("nope")
+        verify(stateObserver).onChanged(ServiceState(Status.SUCCESS, true, null))
+    }
+
+    @Test
+    fun searchFailureReturnsFailureState() {
+        flickrService.addPhotos("test", 200)
+        val networkViewModel = NetworkViewModel(flickrService)
+        networkViewModel.networkState.observeForever(stateObserver)
+        networkViewModel.photos.observeForever(photoObserver)
+        flickrService.failWithMessage = "Failed"
+
+        networkViewModel.updateSearchText("test")
+        verify(stateObserver).onChanged(ServiceState(Status.FAILED, true, "Failed"))
+
+        flickrService.failWithMessage = null
+    }
+
+    @Test
+    fun retryReturnsLoadingState() {
+        flickrService.addPhotos("test", 200)
+        val networkViewModel = NetworkViewModel(flickrService)
+        networkViewModel.networkState.observeForever(stateObserver)
+        networkViewModel.photos.observeForever(photoObserver)
+        flickrService.failWithMessage = "Failed"
+
+        networkViewModel.updateSearchText("test")
+        verify(stateObserver).onChanged(ServiceState(Status.FAILED, true, "Failed"))
+
+        flickrService.failWithMessage = null
+
+        networkViewModel.retryLastFailedPage()
+        verify(stateObserver).onChanged(ServiceState(Status.LOADING, true, null))
     }
 }

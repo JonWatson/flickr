@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                 it.status == Status.SUCCESS -> {
                     hideNetworkStatusCard = true
                 }
-                it.isInitialLoad && it.status == Status.RUNNING -> {
+                it.isInitialLoad && it.status == Status.LOADING -> {
                     hideSwipeToRefresh = !swipe_refresh.isRefreshing
                     hideInitialLoading = swipe_refresh.isRefreshing
                     hideNetworkStatusCard = true

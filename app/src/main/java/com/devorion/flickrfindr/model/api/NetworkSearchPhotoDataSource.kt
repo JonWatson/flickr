@@ -30,7 +30,7 @@ class NetworkSearchPhotoDataSource(
     }
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Photo>) {
-        updateNetworkState(ServiceState(Status.RUNNING, true))
+        updateNetworkState(ServiceState(Status.LOADING, true))
         flickrService.search(searchText, params.requestedLoadSize, 1)
             .doOnSubscribe {
                 compositeDisposable.add(it)
@@ -53,7 +53,7 @@ class NetworkSearchPhotoDataSource(
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Photo>) {
-        updateNetworkState(ServiceState(Status.RUNNING, false))
+        updateNetworkState(ServiceState(Status.LOADING, false))
         flickrService.search(searchText, params.requestedLoadSize, params.key)
             .doOnSubscribe {
                 compositeDisposable.add(it)
