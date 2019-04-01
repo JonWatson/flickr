@@ -29,7 +29,6 @@ class PhotoViewHolder(
 
     private val title: TextView = view.findViewById(R.id.text)
     private val image: ImageView = view.findViewById(R.id.image)
-    private val imageContainer: AspectRatioFrameLayout = view.findViewById(R.id.image_container)
     private val bookmarkIcon: ImageView = view.findViewById(R.id.bookmarkIcon)
     private val bookmarkButton: View = view.findViewById(R.id.bookmarkButton)
 
@@ -51,31 +50,27 @@ class PhotoViewHolder(
                 bookmarkManager.toggleBookmark(it)
             }
         }
+
+        bookmarkManager.bookmarkLiveData.observe(
+            ActivityUtils.getActivityFromContext(title.context),
+            Observer { list ->
+                updateBookmark(list.contains(photo))
+            })
     }
 
     fun bind(photo: Photo?) {
-        val resources = title.resources
-
         this.photo = photo
-        this.title.text = if (photo?.title.isNullOrEmpty()) {
-            resources.getString(R.string.card_no_title)
-        } else {
-            photo!!.title
-        }
 
         photo?.let {
-            imageContainer.tag = 1
-            val width = resources.displayMetrics.widthPixels / spanCount
-
+            title.text = if (photo.title.isEmpty()) title.resources.getString(R.string.card_no_title) else photo.title
+            val width = title.resources.displayMetrics.widthPixels / spanCount
+            updateBookmark(bookmarkManager.isBookmarked(it))
             imageLoader.loadPhotoIntoImage(photo, image, width, width, crop = true, fade = true)
-            bookmarkManager.bookmarkLiveData.observe(
-                ActivityUtils.getActivityFromContext(title.context),
-                Observer { list ->
-                    bookmarkIcon.setImageResource(
-                        if (list.contains(it)) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border
-                    )
-                })
         }
+    }
+
+    private fun updateBookmark(bookmarked: Boolean) {
+        bookmarkIcon.setImageResource(if (bookmarked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border)
     }
 
     companion object {
