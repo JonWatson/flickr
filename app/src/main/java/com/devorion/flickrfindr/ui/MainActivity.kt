@@ -107,7 +107,6 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)[NetworkViewModel::class.java]
 
         viewModel.photos.observe(this, Observer {
-            initial_loading.visibility = View.GONE
             // Handle empty view
             if (it.size == 0 && viewModel.networkState.value?.status != Status.FAILED) {
                 empty_text_view.visibility = View.VISIBLE
