@@ -5,7 +5,7 @@ import androidx.paging.DataSource
 import com.devorion.flickrfindr.model.pojo.Photo
 import io.reactivex.disposables.CompositeDisposable
 
-// Creates the Network DataSource and posts it's value for the observing ViewModel
+// Creates the Network DataSource and posts its value for the observing ViewModel
 class NetworkSearchPhotoDataSourceFactory(
     private val searchText: String,
     private val flickrService: FlickrService,

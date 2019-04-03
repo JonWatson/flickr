@@ -19,6 +19,6 @@ class BookmarkViewModel @Inject internal constructor(
             .toLiveData(pageSize = PAGE_SIZE)
 
     companion object {
-        const val PAGE_SIZE = 5
+        const val PAGE_SIZE = 25
     }
 }
