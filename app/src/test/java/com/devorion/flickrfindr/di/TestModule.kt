@@ -7,19 +7,6 @@ import javax.inject.Singleton
 
 @dagger.Module
 internal class TestModule {
-//    @Singleton
-//    @Provides
-//    fun providesRetrofit(): Retrofit {
-//        val objectMapper = ObjectMapper()
-//        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-//
-//        return Retrofit.Builder()
-//            .baseUrl("https://api.flickr.com/services/rest/")
-//            .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-//            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-//            .build()
-//    }
-
     @Singleton
     @Provides
     fun providesFakeFlickrService(): FakeFlickrService {

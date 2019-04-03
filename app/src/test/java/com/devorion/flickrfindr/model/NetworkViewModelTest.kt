@@ -3,12 +3,10 @@ package com.devorion.flickrfindr.model
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
-import com.devorion.flickrfindr.di.DaggerTestComponent
-import com.devorion.flickrfindr.di.TestModule
+import com.devorion.flickrfindr.model.api.FlickrService
 import com.devorion.flickrfindr.model.pojo.Photo
 import com.devorion.flickrfindr.model.state.ServiceState
 import com.devorion.flickrfindr.model.state.Status
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,24 +21,15 @@ class NetworkViewModelTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    @Inject
-    lateinit var flickrService: FakeFlickrService
-
     @Mock
     lateinit var stateObserver: Observer<ServiceState>
 
     @Mock
     lateinit var photoObserver: Observer<PagedList<Photo>>
 
-    @Before
-    fun setUp() {
-        val component = DaggerTestComponent.builder()
-            .testModule(TestModule()).build()
-        component.inject(this)
-    }
-
     @Test
     fun searchTriggersInitialLoadState() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
@@ -52,6 +41,7 @@ class NetworkViewModelTest {
 
     @Test
     fun searchTriggersInitialSuccessState() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
@@ -63,6 +53,7 @@ class NetworkViewModelTest {
 
     @Test
     fun loadSecondPageTriggersLoadingState() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
@@ -75,6 +66,7 @@ class NetworkViewModelTest {
 
     @Test
     fun loadSecondPageTriggersSuccessState() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
@@ -87,6 +79,7 @@ class NetworkViewModelTest {
 
     @Test
     fun emptySearchReturnsSuccess() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
@@ -98,6 +91,7 @@ class NetworkViewModelTest {
 
     @Test
     fun searchFailureReturnsFailureState() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
@@ -112,6 +106,7 @@ class NetworkViewModelTest {
 
     @Test
     fun retryReturnsLoadingState() {
+        val flickrService = FakeFlickrService()
         flickrService.addPhotos("test", 200)
         val networkViewModel = NetworkViewModel(flickrService)
         networkViewModel.networkState.observeForever(stateObserver)
