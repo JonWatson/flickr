@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.devorion.flickrfindr.R
 import com.devorion.flickrfindr.model.pojo.Photo
 import com.devorion.flickrfindr.ui.DetailActivity
-import com.devorion.flickrfindr.ui.widget.AspectRatioFrameLayout
 import com.devorion.flickrfindr.util.ActivityUtils
 import com.devorion.flickrfindr.util.BookmarkManager
 import com.devorion.flickrfindr.util.ImageLoader
