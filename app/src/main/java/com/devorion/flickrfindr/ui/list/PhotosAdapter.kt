@@ -69,15 +69,15 @@ class PhotosAdapter(
     override fun getItemCount() =
         super.getItemCount() + if (networkState != null) 1 else 0
 
-    // Adds or removes the network_state_item layout which only appears at the end of
-    // indicator and a retry button/error message after an error occurs
+    // Adds or removes the network_state_item layout which only appears at the end of the list
+    // It display a loading indicator or a retry button/error message after an error occurs
     fun addOrUpdateNetworkStatusCard(networkState: ServiceState) {
         val previousNetworkState = this.networkState
         this.networkState = networkState
         if (previousNetworkState == null) {
             notifyItemInserted(super.getItemCount())
         } else if (networkState != previousNetworkState){
-            notifyItemChanged(itemCount - 1)
+            notifyItemChanged(super.getItemCount())
         }
     }
 

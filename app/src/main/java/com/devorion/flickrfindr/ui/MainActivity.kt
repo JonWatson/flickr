@@ -110,8 +110,8 @@ class MainActivity : AppCompatActivity() {
             // Handle empty view
             if (it.size == 0 && viewModel.networkState.value?.status != Status.FAILED) {
                 empty_text_view.visibility = View.VISIBLE
-                photo_list.visibility = View.GONE
                 empty_text_view.text = getString(R.string.empty_view_no_results, currentSearchText)
+                photo_list.visibility = View.GONE
             } else {
                 empty_text_view.visibility = View.GONE
                 photo_list.visibility = View.VISIBLE

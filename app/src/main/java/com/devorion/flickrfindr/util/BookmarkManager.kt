@@ -43,7 +43,8 @@ class BookmarkManager @Inject constructor(
         Single.fromCallable {
             bookmarkPhotoDao.photos()
         }.subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io()).subscribeBy(
+            .observeOn(Schedulers.io())
+            .subscribeBy(
                 onSuccess = {
                     bookmarkList.addAll(it)
                     bookmarkLiveData.postValue(bookmarkList)
