@@ -22,7 +22,7 @@ class NetworkSearchPhotoDataSourceNew(
     private val LOG = Logger.getLogger(NetworkSearchPhotoDataSourceNew::class.java)
     private var retryCompletable: Completable? = null
     val photos: MutableList<Photo> = ArrayList()
-    val photosLiveData: MutableLiveData<MutableList<Photo>> = MutableLiveData()
+    val photosLiveData: MutableLiveData<List<Photo>> = MutableLiveData()
     val networkState: MutableLiveData<ServiceState> = MutableLiveData()
     private var numPagesLoaded = 0
 

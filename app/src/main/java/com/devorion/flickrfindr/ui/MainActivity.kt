@@ -20,11 +20,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import com.devorion.flickrfindr.App
 import com.devorion.flickrfindr.R
-import com.devorion.flickrfindr.model.NetworkViewModel
 import com.devorion.flickrfindr.di.ViewModelFactory
+import com.devorion.flickrfindr.model.NetworkViewModel
 import com.devorion.flickrfindr.model.state.Status
 import com.devorion.flickrfindr.ui.list.GridSpacingItemDecoration
-import com.devorion.flickrfindr.ui.list.GridSpanSizeLookup
+import com.devorion.flickrfindr.ui.list.GridSpanSizeLookupCopy
 import com.devorion.flickrfindr.ui.list.PhotosAdapter
 import com.devorion.flickrfindr.ui.list.PhotosPagedAdapter
 import com.devorion.flickrfindr.util.*
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     private fun initializeAdapter(): PhotosAdapter {
         val itemSpanSize = resources.getInteger(R.integer.photo_columns)
         val totalSpanSize = resources.getInteger(R.integer.lcm_photo_columns)
-        val adapter = PhotosPagedAdapter(
+        val adapter = PhotosAdapter(
             imageLoader,
             bookmarkManager,
             itemSpanSize,
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                     context,
                     totalSpanSize
                 ).apply {
-                    spanSizeLookup = GridSpanSizeLookup(adapter, itemSpanSize, totalSpanSize)
+                    spanSizeLookup = GridSpanSizeLookupCopy(adapter, itemSpanSize, totalSpanSize)
                 }
             addItemDecoration(
                 GridSpacingItemDecoration(
@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
                 photo_list.visibility = View.VISIBLE
             }
 
-            adapter.submitList(it)
+            adapter.addPage(it)
         })
 
         viewModel.networkState.observe(this, Observer {
@@ -170,13 +170,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeRefresh(adapter: PhotosPagedAdapter) {
+    private fun initializeRefresh(adapter: PhotosAdapter) {
         swipe_refresh.setOnRefreshListener {
             if (adapter.itemCount == 0) {
                 swipe_refresh.isRefreshing = false
             } else {
                 photo_list.scrollToPosition(0)
-                adapter.submitList(null)
+//                adapter.(null)
                 if (!viewModel.refresh()) {
                     swipe_refresh.isRefreshing = false
                 }
