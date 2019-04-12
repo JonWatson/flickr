@@ -26,6 +26,7 @@ import com.devorion.flickrfindr.model.state.Status
 import com.devorion.flickrfindr.ui.list.GridSpacingItemDecoration
 import com.devorion.flickrfindr.ui.list.GridSpanSizeLookup
 import com.devorion.flickrfindr.ui.list.PhotosAdapter
+import com.devorion.flickrfindr.ui.list.PhotosPagedAdapter
 import com.devorion.flickrfindr.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -75,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     private fun initializeAdapter(): PhotosAdapter {
         val itemSpanSize = resources.getInteger(R.integer.photo_columns)
         val totalSpanSize = resources.getInteger(R.integer.lcm_photo_columns)
-        val adapter = PhotosAdapter(
+        val adapter = PhotosPagedAdapter(
             imageLoader,
             bookmarkManager,
             itemSpanSize,
@@ -169,7 +170,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeRefresh(adapter: PhotosAdapter) {
+    private fun initializeRefresh(adapter: PhotosPagedAdapter) {
         swipe_refresh.setOnRefreshListener {
             if (adapter.itemCount == 0) {
                 swipe_refresh.isRefreshing = false
@@ -307,7 +308,7 @@ class MainActivity : AppCompatActivity() {
             // New Search text(and DataSource), clear scroll position or LayoutManager
             // will try to restore after the new data arrives
             photo_list.scrollToPosition(0)
-            (photo_list.adapter as? PhotosAdapter)?.submitList(null)
+            (photo_list.adapter as? PhotosPagedAdapter)?.submitList(null)
         }
 
         // Voice or Suggestion clicks should update SearchView text

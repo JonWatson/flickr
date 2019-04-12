@@ -13,7 +13,7 @@ import com.devorion.flickrfindr.model.BookmarkViewModel
 import com.devorion.flickrfindr.di.ViewModelFactory
 import com.devorion.flickrfindr.ui.list.GridSpacingItemDecoration
 import com.devorion.flickrfindr.ui.list.GridSpanSizeLookup
-import com.devorion.flickrfindr.ui.list.PhotosAdapter
+import com.devorion.flickrfindr.ui.list.PhotosPagedAdapter
 import com.devorion.flickrfindr.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
@@ -46,10 +46,10 @@ class BookmarkActivity : AppCompatActivity() {
         initializeViewModel(adapter)
     }
 
-    private fun initializeAdapter(): PhotosAdapter {
+    private fun initializeAdapter(): PhotosPagedAdapter {
         val itemSpanSize = resources.getInteger(R.integer.photo_columns)
         val totalSpanSize = resources.getInteger(R.integer.lcm_photo_columns)
-        val adapter = PhotosAdapter(
+        val adapter = PhotosPagedAdapter(
             imageLoader,
             bookmarkManager,
             itemSpanSize,
@@ -82,7 +82,7 @@ class BookmarkActivity : AppCompatActivity() {
         return adapter
     }
 
-    private fun initializeViewModel(adapter: PhotosAdapter) {
+    private fun initializeViewModel(adapter: PhotosPagedAdapter) {
         viewModel = ViewModelProviders.of(this, viewModelFactory)[BookmarkViewModel::class.java]
 
         viewModel.bookmarkedPhotos.observe(this, Observer {

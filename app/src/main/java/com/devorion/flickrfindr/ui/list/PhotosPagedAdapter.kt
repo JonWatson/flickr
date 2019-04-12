@@ -1,6 +1,7 @@
 package com.devorion.flickrfindr.ui.list
 
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.devorion.flickrfindr.R
@@ -10,29 +11,22 @@ import com.devorion.flickrfindr.util.BookmarkManager
 import com.devorion.flickrfindr.util.ImageLoader
 import com.devorion.flickrfindr.util.StartActivityThrottler
 
-class PhotosAdapter(
+class PhotosPagedAdapter(
     private val imageLoader: ImageLoader,
     private val bookmarkManager: BookmarkManager,
     private val spanCount: Int,
     private val startActivityThrottler: StartActivityThrottler,
     private val retryCallback: () -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : PagedListAdapter<Photo, RecyclerView.ViewHolder>(PHOTO_COMPARATOR) {
 
     private var networkState: ServiceState? = null
-    private val photos: MutableList<Photo> = ArrayList()
-
-    fun addPage(newPhotos: List<Photo>) {
-        val curCount = itemCount
-        this.photos.addAll(newPhotos)
-        notifyItemRangeInserted(curCount, newPhotos.size)
-    }
 
     override fun onBindViewHolder(
         holder: RecyclerView.ViewHolder,
         position: Int
     ) {
         when (getItemViewType(position)) {
-            R.layout.photo_item -> (holder as PhotoViewHolder).bind(photos[position])
+            R.layout.photo_item -> (holder as PhotoViewHolder).bind(getItem(position))
             R.layout.network_state_item -> (holder as NetworkStateViewHolder).bindTo(networkState)
         }
     }
@@ -72,7 +66,8 @@ class PhotosAdapter(
         }
     }
 
-    override fun getItemCount() = photos.size + if (networkState != null) 1 else 0
+    override fun getItemCount() =
+        super.getItemCount() + if (networkState != null) 1 else 0
 
     // Adds or removes the network_state_item layout which only appears at the end of the list
     // It display a loading indicator or a retry button/error message after an error occurs
@@ -80,16 +75,29 @@ class PhotosAdapter(
         val previousNetworkState = this.networkState
         this.networkState = networkState
         if (previousNetworkState == null) {
-            notifyItemInserted(itemCount)
+            notifyItemInserted(super.getItemCount())
         } else if (networkState != previousNetworkState){
-            notifyItemChanged(itemCount)
+            notifyItemChanged(super.getItemCount())
         }
     }
 
     fun removeNetworkStatusCard() {
         if (networkState != null) {
             networkState = null
-            notifyItemRemoved(itemCount)
+            notifyItemRemoved(super.getItemCount())
+        }
+    }
+
+    companion object {
+        val PHOTO_COMPARATOR = object : DiffUtil.ItemCallback<Photo>() {
+            override fun areContentsTheSame(oldItem: Photo, newItem: Photo): Boolean =
+                oldItem == newItem
+
+            override fun areItemsTheSame(oldItem: Photo, newItem: Photo): Boolean =
+                oldItem.id == newItem.id
+
+            override fun getChangePayload(oldItem: Photo, newItem: Photo): Boolean =
+                false
         }
     }
 }

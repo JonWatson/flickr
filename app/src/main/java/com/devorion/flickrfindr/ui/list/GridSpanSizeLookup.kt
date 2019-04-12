@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.devorion.flickrfindr.R
 
 class GridSpanSizeLookup(
-    private val adapter: PhotosAdapter,
+    private val adapter: PhotosPagedAdapter,
     private val photoSpanSize: Int,
     private val totalSpanSize: Int
 ) : GridLayoutManager.SpanSizeLookup() {
