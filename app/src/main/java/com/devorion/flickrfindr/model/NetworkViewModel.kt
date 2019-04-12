@@ -45,6 +45,7 @@ class NetworkViewModel @Inject internal constructor(
         pageSize: Int,
         compositeDisposable: CompositeDisposable
     ): DataSourceState<Photo> {
+        val dataSource
 
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)

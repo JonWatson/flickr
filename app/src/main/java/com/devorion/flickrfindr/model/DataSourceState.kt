@@ -7,7 +7,7 @@ import com.devorion.flickrfindr.model.state.ServiceState
 // Data class meant to be contained in a ViewModel and observed by the UI
 data class DataSourceState<T>(
     // LiveData PagedList data that powers the Adapter
-    val pagedList: LiveData<PagedList<T>>,
+    val pagedList: LiveData<List<T>>,
 
     // The state of the DataSources network requests
     val networkState: LiveData<ServiceState>,
