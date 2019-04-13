@@ -23,6 +23,7 @@ class PhotosAdapter(
 
     fun addPage(newPhotos: List<Photo>) {
         val curCount = itemCount
+        this.photos.clear()
         this.photos.addAll(newPhotos)
         notifyItemRangeInserted(curCount, newPhotos.size)
     }

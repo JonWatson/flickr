@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.devorion.flickrfindr.App
 import com.devorion.flickrfindr.R
 import com.devorion.flickrfindr.di.ViewModelFactory
@@ -99,6 +100,14 @@ class MainActivity : AppCompatActivity() {
                 )
             )
 
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0 && (layoutManager as GridLayoutManager).findLastCompletelyVisibleItemPosition() >= adapter.itemCount - 2) {
+                        viewModel.loadMore()
+                    }
+                }
+            })
+
             this.adapter = adapter
         }
         return adapter
@@ -109,7 +118,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.photos.observe(this, Observer {
             // Handle empty view
-            if (it.size == 0 && viewModel.networkState.value?.status != Status.FAILED) {
+            if (it.isEmpty() && viewModel.networkState.value?.status != Status.FAILED) {
                 empty_text_view.visibility = View.VISIBLE
                 empty_text_view.text = getString(R.string.empty_view_no_results, currentSearchText)
                 photo_list.visibility = View.GONE
@@ -176,7 +185,6 @@ class MainActivity : AppCompatActivity() {
                 swipe_refresh.isRefreshing = false
             } else {
                 photo_list.scrollToPosition(0)
-//                adapter.(null)
                 if (!viewModel.refresh()) {
                     swipe_refresh.isRefreshing = false
                 }

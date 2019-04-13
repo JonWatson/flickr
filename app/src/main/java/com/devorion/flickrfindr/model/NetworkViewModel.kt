@@ -5,6 +5,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.devorion.flickrfindr.model.api.FlickrService
 import com.devorion.flickrfindr.model.api.NetworkSearchPhotoDataSourceNew
+import com.devorion.flickrfindr.model.state.Status
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -21,12 +22,23 @@ class NetworkViewModel @Inject internal constructor(
     private val networkLiveData =
         Transformations.map(searchText) {
             compositeDisposable.clear() // Dispose of any ongoing requests before creating a new Data Source
-            imagesForSearchText(it, PAGE_SIZE, compositeDisposable)
+            val dataSource = NetworkSearchPhotoDataSourceNew(it, flickrService, compositeDisposable, PAGE_SIZE)
+
+            val dataSourceState = DataSourceState(
+                photoList = dataSource.photosLiveData,
+                networkState = dataSource.networkState,
+                retry = { dataSource.retryLastFailedRequest() },
+                refresh = { dataSource.loadInitial() },
+                loadMore = { dataSource.loadAfter(false) }
+            )
+
+            dataSource.loadInitial()
+            dataSourceState
         }
 
     // Each time networkLiveData is updated from a new search(above),
     // photos and networkState switch to pointing at the LiveData of the new DataSource
-    val photos = Transformations.switchMap(networkLiveData) { it.pagedList }
+    val photos = Transformations.switchMap(networkLiveData) { it.photoList }
     val networkState = Transformations.switchMap(networkLiveData) { it.networkState }
 
     fun updateSearchText(searchText: String): Boolean {
@@ -37,19 +49,25 @@ class NetworkViewModel @Inject internal constructor(
         return true
     }
 
-    private fun imagesForSearchText(
-        searchText: String,
-        pageSize: Int,
-        compositeDisposable: CompositeDisposable
-    ): DataSourceState {
-        val dataSource = NetworkSearchPhotoDataSourceNew(searchText, flickrService, compositeDisposable, pageSize)
+//    private fun imagesForSearchText(
+//        searchText: String,
+//        pageSize: Int,
+//        compositeDisposable: CompositeDisposable
+//    ): DataSourceState {
+//
+//
+//        return DataSourceState(
+//            photoList = dataSource.photosLiveData,
+//            networkState = dataSource.networkState,
+//            retry = { dataSource.retryLastFailedRequest() },
+//            refresh = { dataSource.loadInitial() }
+//        )
+//    }
 
-        return DataSourceState(
-            pagedList = dataSource.photosLiveData,
-            networkState = dataSource.networkState,
-            retry = { dataSource.retryLastFailedRequest() },
-            refresh = { dataSource.loadInitial() }
-        )
+    fun loadMore() {
+        if (networkState.value?.status == Status.SUCCESS) {
+            networkLiveData.value?.loadMore?.invoke()
+        }
     }
 
     fun retryLastFailedPage() {
