@@ -81,9 +81,9 @@ class PhotosAdapter(
         val previousNetworkState = this.networkState
         this.networkState = networkState
         if (previousNetworkState == null) {
-            notifyItemInserted(itemCount)
+            notifyItemInserted(itemCount - 1)
         } else if (networkState != previousNetworkState){
-            notifyItemChanged(itemCount)
+            notifyItemChanged(itemCount - 1)
         }
     }
 

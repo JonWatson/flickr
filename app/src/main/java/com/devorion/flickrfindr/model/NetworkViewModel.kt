@@ -25,8 +25,7 @@ class NetworkViewModel @Inject internal constructor(
             val dataSource = NetworkSearchPhotoDataSourceNew(it, flickrService, compositeDisposable, PAGE_SIZE)
 
             val dataSourceState = DataSourceState(
-                photoList = dataSource.photosLiveData,
-                networkState = dataSource.networkState,
+                dataSourceState = dataSource.networkSearchLiveData,
                 retry = { dataSource.retryLastFailedRequest() },
                 refresh = { dataSource.loadInitial() },
                 loadMore = { dataSource.loadAfter(false) }
@@ -38,8 +37,7 @@ class NetworkViewModel @Inject internal constructor(
 
     // Each time networkLiveData is updated from a new search(above),
     // photos and networkState switch to pointing at the LiveData of the new DataSource
-    val photos = Transformations.switchMap(networkLiveData) { it.photoList }
-    val networkState = Transformations.switchMap(networkLiveData) { it.networkState }
+    val data = Transformations.switchMap(networkLiveData) { it.dataSourceState }
 
     fun updateSearchText(searchText: String): Boolean {
         if (this.searchText.value == searchText) {
@@ -65,7 +63,7 @@ class NetworkViewModel @Inject internal constructor(
 //    }
 
     fun loadMore() {
-        if (networkState.value?.status == Status.SUCCESS) {
+        if (data.value?.serviceState?.status == Status.SUCCESS) {
             networkLiveData.value?.loadMore?.invoke()
         }
     }

@@ -22,8 +22,7 @@ class NetworkSearchPhotoDataSourceNew(
     private val LOG = Logger.getLogger(NetworkSearchPhotoDataSourceNew::class.java)
     private var retryCompletable: Completable? = null
     val photos: MutableList<Photo> = ArrayList()
-    val photosLiveData: MutableLiveData<List<Photo>> = MutableLiveData()
-    val networkState: MutableLiveData<ServiceState> = MutableLiveData()
+    val networkSearchLiveData: MutableLiveData<NetworkSearchLiveData> = MutableLiveData()
     private var numPagesLoaded = 0
     private var numPages = 0
 
@@ -36,8 +35,7 @@ class NetworkSearchPhotoDataSourceNew(
     fun loadInitial() {
         numPagesLoaded = 0
         photos.clear()
-        photosLiveData.postValue(photos)
-        updateNetworkState(ServiceState(Status.LOADING, true))
+        networkSearchLiveData.postValue(NetworkSearchLiveData(photos, ServiceState(Status.LOADING, true)))
 
         flickrService.search(searchText, pageSize, 1)
             .doOnSubscribe {
@@ -47,15 +45,14 @@ class NetworkSearchPhotoDataSourceNew(
             .observeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = { response ->
-                    updateNetworkState(ServiceState(Status.SUCCESS, true))
                     retryCompletable = null
                     numPagesLoaded = 1
                     numPages = response.photos.numPages
                     photos.addAll(response.photos.photoList)
-                    photosLiveData.postValue(photos)
+                    networkSearchLiveData.postValue(NetworkSearchLiveData(photos, ServiceState(Status.SUCCESS, true)))
                 },
                 onError = {
-                    updateNetworkState(ServiceState(Status.FAILED, true, it.message))
+                    networkSearchLiveData.postValue(NetworkSearchLiveData(photos, ServiceState(Status.FAILED, true, it.message)))
                     retryCompletable = Completable.fromAction { loadInitial() }
                 }
             )
@@ -67,13 +64,14 @@ class NetworkSearchPhotoDataSourceNew(
             return
         }
 
-        if (networkState.value?.status != Status.SUCCESS &&
-            !(  fromRetry && networkState.value?.status == Status.FAILED)) {
+        if (networkSearchLiveData.value?.serviceState?.status != Status.SUCCESS &&
+            !(fromRetry && networkSearchLiveData.value?.serviceState?.status == Status.FAILED)) {
             LOG.w("Incorrect state to load more")
             return
         }
 
-        updateNetworkState(ServiceState(Status.LOADING, false))
+
+        networkSearchLiveData.postValue(NetworkSearchLiveData(photos, ServiceState(Status.LOADING, false)))
         flickrService.search(searchText, pageSize, numPagesLoaded + 1)
             .doOnSubscribe {
                 compositeDisposable.add(it)
@@ -82,23 +80,16 @@ class NetworkSearchPhotoDataSourceNew(
             .observeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = { response ->
-                    updateNetworkState(ServiceState(Status.SUCCESS, false))
                     retryCompletable = null
                     numPagesLoaded++
                     photos.addAll(response.photos.photoList)
-                    photosLiveData.postValue(photos)
+                    networkSearchLiveData.postValue(NetworkSearchLiveData(photos, ServiceState(Status.SUCCESS, false)))
                 },
 
                 onError = {
-                    updateNetworkState(
-                        ServiceState(Status.FAILED, false, it.message)
-                    )
+                    networkSearchLiveData.postValue(NetworkSearchLiveData(photos, ServiceState(Status.FAILED, false, it.message)))
                     retryCompletable = Completable.fromAction { loadAfter(true) }
                 }
             )
-    }
-
-    private fun updateNetworkState(networkState: ServiceState) {
-        this.networkState.postValue(networkState)
     }
 }

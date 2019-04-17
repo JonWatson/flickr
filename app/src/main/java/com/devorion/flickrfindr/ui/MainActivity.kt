@@ -116,29 +116,24 @@ class MainActivity : AppCompatActivity() {
     private fun initializeViewModel(adapter: PhotosAdapter) {
         viewModel = ViewModelProviders.of(this, viewModelFactory)[NetworkViewModel::class.java]
 
-        viewModel.photos.observe(this, Observer {
+        viewModel.data.observe(this, Observer {
             // Handle empty view
-            if (it.isEmpty() && viewModel.networkState.value?.status != Status.FAILED) {
-                empty_text_view.visibility = View.VISIBLE
-                empty_text_view.text = getString(R.string.empty_view_no_results, currentSearchText)
-                photo_list.visibility = View.GONE
-            } else {
-                empty_text_view.visibility = View.GONE
-                photo_list.visibility = View.VISIBLE
-            }
+            empty_text_view.text = getString(R.string.empty_view_no_results, currentSearchText)
 
-            adapter.addPage(it)
-        })
-
-        viewModel.networkState.observe(this, Observer {
+            var hideEmptyText = true
             var hideSwipeToRefresh = true
             var hideNetworkStatusCard = false
             var hideInitialLoading = true
             when {
-                it.status == Status.SUCCESS -> {
+                it.serviceState.status == Status.SUCCESS -> {
                     hideNetworkStatusCard = true
+
+                    if (it.serviceState.isInitialLoad &&
+                        it.photos.isEmpty()) {
+                        hideEmptyText = false
+                    }
                 }
-                it.isInitialLoad && it.status == Status.LOADING -> {
+                it.serviceState.isInitialLoad && it.serviceState.status == Status.LOADING -> {
                     hideSwipeToRefresh = !swipe_refresh.isRefreshing
                     hideInitialLoading = swipe_refresh.isRefreshing
                     hideNetworkStatusCard = true
@@ -147,12 +142,16 @@ class MainActivity : AppCompatActivity() {
 
                 }
             }
+            adapter.addPage(it.photos)
 
-            empty_text_view.visibility = View.GONE
-            if (hideInitialLoading) {
-                initial_loading.visibility = View.GONE
+            initial_loading.visibility = if (hideInitialLoading) View.GONE else View.VISIBLE
+            empty_text_view.visibility = if (hideEmptyText) View.GONE else View.VISIBLE
+            if (hideEmptyText) {
+                empty_text_view.visibility = View.GONE
+                photo_list.visibility = View.VISIBLE
             } else {
-                initial_loading.visibility = View.VISIBLE
+                empty_text_view.visibility = View.VISIBLE
+                photo_list.visibility = View.GONE
             }
             if (hideSwipeToRefresh) {
                 swipe_refresh.isRefreshing = false
@@ -160,7 +159,7 @@ class MainActivity : AppCompatActivity() {
             if (hideNetworkStatusCard) {
                 adapter.removeNetworkStatusCard()
             } else {
-                adapter.addOrUpdateNetworkStatusCard(it)
+                adapter.addOrUpdateNetworkStatusCard(it.serviceState)
             }
         })
     }
